@@ -1,0 +1,51 @@
+
+#include <Wire.h>
+#include <I2Cdev.h>
+#include <MPU6050.h>
+#include <Mouse.h>
+
+MPU6050 mpu;
+int16_t ax, ay, az, gx, gy, gz;
+int vx, vy, vz;
+
+void setup() {
+   Serial.begin(9600);
+   Wire.begin();
+   pinMode(4, OUTPUT);
+ //digitalWrite(4, LOW);
+   digitalWrite(4, HIGH);
+   delay(100);
+
+  mpu.initialize();
+  if (!mpu.testConnection()) { while (1); }
+}
+
+void loop() {
+  mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+
+ // vx = (gx+300)/150;  // "+300" because the x axis of gyroscope give values about -350 while it's not moving. Change this value if you get something different using the TEST code, chacking if there are values far from zero.
+//  vy = -(gz-100)/150; // same here about "-100"
+ //gx = gx/10;
+  //gy = gy/10;
+  
+ //RIGT SIDE CONN
+  vx = -(gx+300)/400;
+  vy = -(gz+200)/340;
+
+ //TOP SIDE CONN (WIRE RIGHT SIDE)
+// vx = -(gy+250)/150;
+ //vy = -(gz+100)/150;
+  Serial.print("gx = ");
+  Serial.print(gx);
+  Serial.print(" | gz = ");
+  Serial.print(gz);
+  
+  Serial.print("        | X = ");
+  Serial.print(vx);
+  Serial.print(" | Y = ");
+  Serial.println(vy);
+  
+  Mouse.move(vx, vy);
+  
+  delay(20);
+}
